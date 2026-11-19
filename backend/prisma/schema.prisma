@@ -1,0 +1,28 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+
+  @@map("user_status")
+}
+
+model User {
+  id                 String     @id @default(uuid()) @db.Uuid
+  email              String     @unique @db.VarChar(254)
+  name               String     @db.VarChar(160)
+  passwordHash       String     @db.VarChar(255)
+  preferredLanguage  String     @default("en") @db.VarChar(10)
+  status             UserStatus @default(ACTIVE)
+  createdAt          DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("users")
+}
