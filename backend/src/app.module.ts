@@ -9,7 +9,9 @@ import { PrismaModule } from './database/prisma.module';
 import { envValidationSchema } from './config/env.validation';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
-
+import configuration from './config/configuration';
+import { CompaniesModule } from './modules/companies/companies.module';
+import { MembershipsModule } from './modules/memberships/memberships.module';
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
 @Module({
@@ -17,6 +19,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+      load: [configuration],
 
       validate: (config) => {
         const { error, value } = envValidationSchema.validate(config, {
@@ -41,6 +44,8 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     PrismaModule,
     UsersModule,
     AuthModule,
+    CompaniesModule,
+    MembershipsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

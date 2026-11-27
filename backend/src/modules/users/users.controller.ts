@@ -12,7 +12,11 @@ import type {
   UserProfile,
 } from './users.service';
 
-@Controller('api/v1/users')
+@Controller({
+  path: 'users',
+  version: '1',
+})
+
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
