@@ -48,6 +48,8 @@ model User {
 
   memberships   Membership[]
   refreshTokens RefreshToken[]
+  sentInvitations Invitation[] @relation("InvitedBy")
+  createdProjects Project[] @relation("ProjectCreator")
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
@@ -68,6 +70,8 @@ model Company {
 
   memberships Membership[]
   roles       Role[]
+  invitations Invitation[]
+  projects Project[]
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
@@ -194,4 +198,73 @@ model RefreshToken {
   @@index([userId, expiresAt])
   @@index([familyId])
   @@map("refresh_tokens")
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+
+  @@map("invitation_status")
+}
+
+model Invitation {
+  id             String           @id @default(uuid()) @db.Uuid
+  companyId      String           @map("company_id") @db.Uuid
+  invitedById    String           @map("invited_by_id") @db.Uuid
+  email          String           @db.VarChar(254)
+  tokenHash      String           @unique @map("token_hash") @db.VarChar(255)
+  status         InvitationStatus @default(PENDING)
+
+  expiresAt      DateTime         @map("expires_at") @db.Timestamptz(6)
+  acceptedAt     DateTime?        @map("accepted_at") @db.Timestamptz(6)
+  revokedAt      DateTime?        @map("revoked_at") @db.Timestamptz(6)
+
+  company        Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  invitedBy      User             @relation("InvitedBy", fields: [invitedById], references: [id], onDelete: Restrict)
+
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([companyId, email, status])
+  @@index([expiresAt])
+  @@map("invitations")
+}
+
+enum ProjectStatus {
+  PLANNING
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+
+  @@map("project_status")
+}
+
+model Project {
+  id          String        @id @default(uuid()) @db.Uuid
+  companyId   String        @map("company_id") @db.Uuid
+  createdById String        @map("created_by_id") @db.Uuid
+
+  name        String        @db.VarChar(180)
+  description String?       @db.VarChar(1000)
+  location    String?       @db.VarChar(255)
+  budget      Decimal?      @db.Decimal(14, 2)
+
+  startDate   DateTime?     @map("start_date") @db.Date
+  endDate     DateTime?     @map("end_date") @db.Date
+
+  status      ProjectStatus @default(PLANNING)
+
+  company     Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdBy   User          @relation("ProjectCreator", fields: [createdById], references: [id], onDelete: Restrict)
+
+  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([companyId, name])
+  @@index([companyId, status])
+  @@index([createdById])
+  @@map("projects")
 }

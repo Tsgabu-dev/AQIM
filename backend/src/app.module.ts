@@ -12,6 +12,9 @@ import { UsersModule } from './modules/users/users.module';
 import configuration from './config/configuration';
 import { CompaniesModule } from './modules/companies/companies.module';
 import { MembershipsModule } from './modules/memberships/memberships.module';
+import { RolesPermissionsModule } from './modules/roles-permissions/roles-permissions.module';
+import { InvitationsModule } from './modules/invitations/invitations.module';
+import { ProjectsModule } from './modules/projects/projects.module';
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
 @Module({
@@ -46,6 +49,9 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     AuthModule,
     CompaniesModule,
     MembershipsModule,
+    RolesPermissionsModule,
+    InvitationsModule,
+    ProjectsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
